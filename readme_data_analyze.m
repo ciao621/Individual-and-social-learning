@@ -22,7 +22,7 @@ number_all=sum(steady_SL_cooperation)+sum(steady_SL_defection)+sum(steady_IL_coo
 number_trade_C=sum(steady_IL_cooperation(3:4));
 number_trade_D=sum(steady_IL_defection(3:4));
 number_trial_C=steady_IL_cooperation(2);
-number_trial_D=steady_IL_defect(2);
+number_trial_D=steady_IL_defection(2);
 
 radio_trade_C=number_trade_C/number_all;
 radio_trade_D=number_trade_D/number_all;
