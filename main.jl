@@ -35,7 +35,7 @@ function create_regular_graph(n, d, max_iter=10)
 end
 
 
-function program_c(b_all, mu, probability_trial, c, N, w, degree, time_all, number_structural)
+function program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural)
   
     xiangtu_x_axis = length(b_all)
 
@@ -132,7 +132,7 @@ function program_c(b_all, mu, probability_trial, c, N, w, degree, time_all, numb
                 neighbors_focal = neighbors_list[decision_maker]
 
 
-                if rand() < probability_trial
+                if rand() < PIL
                     strategy_vector[decision_maker] = 1 - strategy_vector[decision_maker]
                     payoff_study[decision_maker] = 0
 
@@ -242,7 +242,7 @@ function program_c(b_all, mu, probability_trial, c, N, w, degree, time_all, numb
                 neighbors_focal = neighbors_list[decision_maker]
 
 
-                if rand() < probability_trial
+                if rand() < PIL
                     strategy_vector[decision_maker] = 1 - strategy_vector[decision_maker]
                     payoff_study[decision_maker] = 0
 
@@ -348,17 +348,17 @@ function main()
     mus = vcat(1, mus)
 
     # Individual learning probability
-    probability_trials = fill(0.05, length(mus))
+    PILs = fill(0.05, length(mus))
 
     # Parallel computation using Threads.@threads
-    Threads.@threads for (i, (mu, probability_trial)) in collect(enumerate(zip(mus, probability_trials)))
-        println("Computing parameter set $i: mu = $mu, probability_trial = $probability_trial...")
+    Threads.@threads for (i, (mu, PIL)) in collect(enumerate(zip(mus, PILs)))
+        println("Computing parameter set $i: mu = $mu, PIL = $PIL...")
 
         # Call the program_c function
-        steady_SL_cooperation, steady_SL_defect, steady_IL_cooperation, steady_IL_defect, steady_outcome, steady_social = program_c(b_all, mu, probability_trial, c, N, w, degree, time_all, number_structural)
+        steady_SL_cooperation, steady_SL_defect, steady_IL_cooperation, steady_IL_defect, steady_outcome, steady_social = program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural)
         
         # Save results to a JLD2 file (file name includes parameter identifiers)
-        filename = "results_mu$(mu)_prob$(probability_trial).jld2"
+        filename = "results_mu$(mu)_prob$(PIL).jld2"
         @save filename steady_SL_cooperation steady_SL_defect steady_IL_cooperation steady_IL_defect steady_outcome steady_social
         
         println("Results saved to $filename")
@@ -371,4 +371,5 @@ end
 
 # Here, we provide a base code with parameter settings (λ_1,…,λ_(μ-1),λ_μ )=(0,…,0,1). 
 # All the data presented in our study can be obtained by appropriately extending this code.
+
 main()
