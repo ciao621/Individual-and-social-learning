@@ -379,15 +379,13 @@ function main()
         println("Computing parameter set $i: mu = $mu, PIL = $PIL, lambda_radio = $lambda_radio...")
 
         lambda = geometric_weights(lambda_radio, mu)
-        display(lambda)
 
         # Call the program_c function
         steady_SL_cooperation, steady_SL_defect, steady_IL_cooperation, steady_IL_defect, steady_outcome = program_c(b_all, mu, PIL, lambda, c, N, w, degree, time_all, number_structural)
 
         # Save results to a JLD2 file (file name includes parameter identifiers)
         filename = "results_mu$(mu)_prob$(PIL)_lambdaradio$(lambda_radio).jld2"
-        display(steady_outcome)
-        #@save filename steady_SL_cooperation steady_SL_defect steady_IL_cooperation steady_IL_defect steady_outcome
+        @save filename steady_SL_cooperation steady_SL_defect steady_IL_cooperation steady_IL_defect steady_outcome
 
         println("Results saved to $filename")
     end
@@ -399,3 +397,4 @@ end
 
 
 main()
+
