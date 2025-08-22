@@ -71,14 +71,14 @@ function findRemeetingTimes(mAdj, P1IL)
 
     Q = reshape(x, N, N)
 
-    q1 = (1 / N) * sum(P .* Q)
-    return q1
+    q = (1 / N) * sum(P .* Q)
+    return q
 end
 
 
 
 
-function program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural, Calculation_q1)
+function program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural, Calculation_q)
   
     Length_ball = length(b_all)
 
@@ -93,10 +93,10 @@ function program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural,
     steady_social = zeros(Length_ball, 2)
     steady_outcome = zeros(Length_ball)
 
-    if Calculation_q1 == 1
-        q1_all = zeros(Length_ball, number_structural)
+    if Calculation_q == 1
+        q_all = zeros(Length_ball, number_structural)
     else
-        q1_all = Array{Float64}(undef, 0, 0)
+        q_all = Array{Float64}(undef, 0, 0)
     end
 
     strategy_initial = ones(Int, N)
@@ -126,8 +126,8 @@ function program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural,
 
             PRE = PIL * (1 - 1/N)^mu
             PIL1 = ((N - 2) * PRE + N * PIL) / (N + (N - 2) * PRE)
-            if Calculation_q1 == 1
-                q1_all[number_b, number1] = findRemeetingTimes(adjacency_matrix, PIL1)
+            if Calculation_q == 1
+                q_all[number_b, number1] = findRemeetingTimes(adjacency_matrix, PIL1)
             end
 
             neighbors_list = [findall(adjacency_matrix[i, :] .== 1) for i in 1:N]
@@ -375,7 +375,7 @@ function program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural,
     steady_outcome ./= (time_all * number_structural)
     steady_social ./= (time_all * number_structural)
 
-    return steady_SL_cooperation, steady_SL_defect, steady_IL_cooperation, steady_IL_defect, steady_outcome, steady_social, q1_all
+    return steady_SL_cooperation, steady_SL_defect, steady_IL_cooperation, steady_IL_defect, steady_outcome, steady_social, q_all
 end
 
 
@@ -400,20 +400,20 @@ function main()
     # Individual learning probability
     PILs = fill(0.05, length(mus))
 
-    # Whether to calculate q1? 1 means calculate, 0 means do not calculate
-    Calculation_q1 = 0
+    # Whether to calculate q? 1 means calculate, 0 means do not calculate
+    Calculation_q = 0
 
     # Parallel computation using Threads.@threads
     Threads.@threads for (i, (mu, PIL)) in collect(enumerate(zip(mus, PILs)))
         println("Computing parameter set $i: mu = $mu, PIL = $PIL...")
 
         # Call the program_c function
-        steady_SL_cooperation, steady_SL_defect, steady_IL_cooperation, steady_IL_defect, steady_outcome, steady_social, q1_all = program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural, Calculation_q1)
+        steady_SL_cooperation, steady_SL_defect, steady_IL_cooperation, steady_IL_defect, steady_outcome, steady_social, q_all = program_c(b_all, mu, PIL, c, N, w, degree, time_all, number_structural, Calculation_q)
         
-        display(q1_all)
+        display(q_all)
         # Save results to a JLD2 file (file name includes parameter identifiers)
         filename = "results_mu$(mu)_prob$(PIL).jld2"
-        #save filename steady_SL_cooperation steady_SL_defect steady_IL_cooperation steady_IL_defect steady_outcome steady_social q1_all
+        #save filename steady_SL_cooperation steady_SL_defect steady_IL_cooperation steady_IL_defect steady_outcome steady_social q_all
         
         println("Results saved to $filename")
     end
@@ -425,5 +425,6 @@ end
 
 # Here, we provide a base code with parameter settings (λ_1,…,λ_(μ-1),λ_μ )=(0,…,0,1). 
 # All the data presented in our study can be obtained by appropriately extending this code.
+
 
 main()
