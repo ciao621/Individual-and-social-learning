@@ -367,3 +367,4 @@ for i in eachindex(mu_all)
 end
 
 println("λ_i+1/λ_i=0.5, ", linjie)
+
