@@ -116,7 +116,16 @@ function run_simulation(;
         for _ in 1:time_all
             strategy_snapshot = copy(strategy_vector)
 
-            # Active individual learners collect f(t+1), ..., f(t+mu).
+            # Select the focal individual first, so reselection interrupts an
+            # active trial before that trial collects the current payoff.
+            dm = rand(1:N)
+            if trial_active[dm]
+                trial_active[dm] = false
+                study_vector[dm] = 0
+                trial_cognition[dm] = 0.0
+            end
+
+            # Remaining active individual learners collect f(t+1), ..., f(t+mu).
             for i in findall(trial_active)
                 experience_index = mu - study_vector[i] + 1
                 payoff_now = node_payoff(i, strategy_snapshot, neighbors_list, degree_vector, b, c)
@@ -136,13 +145,6 @@ function run_simulation(;
 
             study_node = study_vector .!= 0
             study_vector[study_node] .-= 1
-
-            dm = rand(1:N)
-            if trial_active[dm]
-                trial_active[dm] = false
-                study_vector[dm] = 0
-                trial_cognition[dm] = 0.0
-            end
 
             pre_state = strategy_snapshot[dm]
 
@@ -175,7 +177,16 @@ function run_simulation(;
         for _ in 1:time_all
             strategy_snapshot = copy(strategy_vector)
 
-            # Active individual learners collect payoff experiences.
+            # Select the focal individual first, so reselection interrupts an
+            # active trial before that trial collects the current payoff.
+            dm = rand(1:N)
+            if trial_active[dm]
+                trial_active[dm] = false
+                study_vector[dm] = 0
+                trial_cognition[dm] = 0.0
+            end
+
+            # Remaining active individual learners collect payoff experiences.
             for i in findall(trial_active)
                 experience_index = mu - study_vector[i] + 1
                 payoff_now = node_payoff(i, strategy_snapshot, neighbors_list, degree_vector, b, c)
@@ -208,13 +219,6 @@ function run_simulation(;
 
             study_node = study_vector .!= 0
             study_vector[study_node] .-= 1
-
-            dm = rand(1:N)
-            if trial_active[dm]
-                trial_active[dm] = false
-                study_vector[dm] = 0
-                trial_cognition[dm] = 0.0
-            end
 
             pre_state = strategy_snapshot[dm]
             pre_C = count_C(dm, strategy_snapshot, neighbors_list)
